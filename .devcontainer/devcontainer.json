@@ -1,0 +1,17 @@
+{
+  "name": "Tavan Tolgoi Dust Research - private research prototype",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "Dashboard (keep PRIVATE)", "onAutoForward": "openBrowser" },
+    "8000": { "label": "API - internal only, reached through the dashboard proxy", "onAutoForward": "silent" }
+  },
+  "otherPortsAttributes": { "onAutoForward": "silent" },
+  "customizations": {
+    "codespaces": { "openFiles": [".devcontainer/CODESPACE.md"] }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "method_version": "maiac-aod550/0.2.0",
+  "dataset": {
+    "key": "maiac_aod550",
+    "collection_id": "MODIS/061/MCD19A2_GRANULES",
+    "title": "MCD19A2.061 Terra & Aqua MAIAC Land Aerosol Optical Depth Daily 1 km",
+    "aod_band": "Optical_Depth_055",
+    "qa_band": "AOD_QA",
+    "derived_band": "AOD_550",
+    "scale_factor": 0.001,
+    "offset": 0.0,
+    "unit": "dimensionless",
+    "quantity": "Aerosol optical depth at 550 nm (column-integrated, atmosphere total)",
+    "product_valid_raw_range": [-100, 8000],
+    "catalog_pixel_size_m": 1000,
+    "start_date": "2000-02-24",
+    "catalog_url": "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD19A2_GRANULES",
+    "citation": "MODIS/Terra+Aqua Land Aerosol Optical Depth Daily L2G Global 1km SIN Grid V061 (MCD19A2.061). NASA EOSDIS Land Processes DAAC. https://doi.org/10.5067/MODIS/MCD19A2.061 - see the LP DAAC 'Citing Our Data' page for the full citation format."
+  },
+  "qa": {
+    "fields": [
+      {"name": "cloud_mask", "start_bit": 0, "n_bits": 3, "documented_values": [0, 1, 2, 3, 5, 6, 7]},
+      {"name": "land_water_snow_ice", "start_bit": 3, "n_bits": 2, "documented_values": [0, 1, 2, 3]},
+      {"name": "adjacency", "start_bit": 5, "n_bits": 3, "documented_values": [0, 1, 2, 3, 4, 5]},
+      {"name": "aod_quality", "start_bit": 8, "n_bits": 4, "documented_values": [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
+      {"name": "glint", "start_bit": 12, "n_bits": 1, "documented_values": [0, 1]},
+      {"name": "aerosol_model", "start_bit": 13, "n_bits": 2, "documented_values": [0, 1, 2]},
+      {"name": "reserved", "start_bit": 15, "n_bits": 1, "documented_values": [0]}
+    ],
+    "core_qa": {
+      "name": "core_qa",
+      "accept": {"cloud_mask": [1], "land_water_snow_ice": [0], "aod_quality": [0]},
+      "text": "AOD_QA bits 0-2 == 1 (clear) AND bits 3-4 == 0 (land) AND bits 8-11 == 0 (best quality)"
+    },
+    "documented_value_guard": {
+      "name": "documented_value_guard",
+      "fields": ["adjacency", "glint", "aerosol_model", "reserved"],
+      "text": "Every non-core AOD_QA field must hold a documented value: adjacency bits 5-7 in {0..5}, glint bit 12 in {0,1}, aerosol model bits 13-14 in {0,1,2}, reserved bit 15 == 0. Retrievals failing only this guard are rejected and counted as qa_guard_rejections, never silently accepted."
+    },
+    "adjacency_policies": {
+      "any_documented": {"accept": null, "text": "Adjacency bits 5-7 are decoded but not used to filter (any documented value accepted)."},
+      "clear_only": {"accept": [0], "text": "Adjacency bits 5-7 == 0 (normal condition / clear) only."}
+    }
+  },
+  "variants": [
+    {
+      "id": "product_range",
+      "role": "primary",
+      "label": "Primary - core QA, product valid range",
+      "raw_range": [-100, 8000],
+      "adjacency_policy": "any_documented",
+      "text": "Core QA + documented-value guard; raw Optical_Depth_055 in [-100, 8000] (AOD -0.100..8.000); adjacency not filtered. No clamping: small negative AOD is kept."
+    },
+    {
+      "id": "nonnegative_sensitivity",
+      "role": "sensitivity",
+      "label": "Sensitivity - non-negative AOD only",
+      "raw_range": [0, 8000],
+      "adjacency_policy": "any_documented",
+      "text": "As primary, but raw Optical_Depth_055 in [0, 8000] (AOD 0.000..8.000). Negative retrievals are excluded, not set to zero."
+    },
+    {
+      "id": "adjacency_clear_sensitivity",
+      "role": "sensitivity",
+      "label": "Sensitivity - cloud-adjacency clear only",
+      "raw_range": [-100, 8000],
+      "adjacency_policy": "clear_only",
+      "text": "As primary, plus AOD_QA adjacency bits 5-7 == 0."
+    }
+  ],
+  "spatial_rule": {
+    "grid": "MAIAC native sinusoidal projection (taken from the collection's own Optical_Depth_055 band; no scale override)",
+    "pixel_inclusion": "pixel centre inside the ROI",
+    "reducers": "unweighted for every statistic (pixel sums, per-granule counts and means)",
+    "roi_edges": "planar (non-geodesic) edges in EPSG:4326",
+    "text": "All ROI statistics use the MAIAC native sinusoidal grid and Earth Engine unweighted reducers: a pixel is included when its centre lies inside the ROI. Pixel-level sums and per-granule counts use the identical rule."
+  },
+  "temporal_rule": {
+    "text": "Per-pixel statistics use all QA-passing granule retrievals with system:time_start in [start, end_exclusive) (UTC). Granules are independent overpass retrievals; a valid day is a UTC calendar day with >= 1 valid retrieval anywhere in the ROI."
+  },
+  "statistic_definitions": {
+    "pixels_total": "Number of MAIAC native-grid pixels whose centre lies inside the ROI.",
+    "pixels_with_valid": "Number of ROI pixels with at least one valid retrieval in the period.",
+    "coverage_fraction": "pixels_with_valid / pixels_total; null when pixels_total is 0.",
+    "valid_retrievals": "Sum over ROI pixels of the per-pixel count of valid granule retrievals (pixel-level sum).",
+    "valid_retrievals_granule_sum": "Sum over granules of each granule's count of valid ROI pixels (per-granule sum); must equal valid_retrievals.",
+    "retrievals_before_qa": "Sum over ROI pixels of granule retrievals whose raw Optical_Depth_055 is present and inside the product valid range [-100, 8000], before any QA test.",
+    "qa_retention_fraction": "valid_retrievals / retrievals_before_qa; null when retrievals_before_qa is 0.",
+    "qa_guard_rejections": "Retrievals inside the product valid range that pass core QA but fail the documented-value guard (undocumented or reserved AOD_QA values).",
+    "granules_intersecting": "Number of granules whose footprint intersects the ROI in the period.",
+    "granules_with_valid": "Number of granules with at least one valid ROI pixel.",
+    "valid_day_count": "Number of distinct UTC days with at least one valid retrieval anywhere in the ROI.",
+    "roi_mean_aod": "Unweighted mean, over ROI pixels with >= 1 valid retrieval, of each pixel's period-mean AOD (mean of per-pixel period means). null when no valid retrieval.",
+    "roi_pooled_retrieval_mean_aod": "Mean of all valid pixel-level retrievals pooled together (sum of AOD over every valid pixel retrieval / valid_retrievals). A different statistic from roi_mean_aod; null when no valid retrieval."
+  },
+  "acceptance": {
+    "test_month": "2025-04",
+    "integer_fields_exact": ["granules_intersecting", "pixels_total", "retrievals_before_qa", "qa_guard_rejections", "valid_retrievals", "valid_retrievals_granule_sum", "pixels_with_valid", "granules_with_valid", "valid_day_count"],
+    "mean_fields": ["roi_mean_aod", "roi_pooled_retrieval_mean_aod"],
+    "mean_abs_tolerance": 1e-9,
+    "note": "Parity evidence shows the backend reproduces the Code Editor computation for one ROI and month. It is not scientific validation of the AOD product or of any attribution."
+  }
+}

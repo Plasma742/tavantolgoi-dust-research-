@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1",
+  "status": "example_only_not_real_observations",
+  "dataset_id": "MODIS/061/MCD19A2_GRANULES",
+  "band": "Optical_Depth_055",
+  "derived_band": "AOD_550",
+  "unit": "dimensionless",
+  "scale_factor": 0.001,
+  "native_grid_m": 1000,
+  "quality_filter": "AOD_QA cloud bits 0-2 == 1; land bits 3-4 == 0; best AOD QA bits 8-11 == 0; 0 <= AOD <= 8",
+  "time_start_utc": "2025-04-01T00:00:00Z",
+  "time_end_exclusive_utc": "2025-05-01T00:00:00Z",
+  "roi_status": "not_provided",
+  "valid_observation_count": null,
+  "valid_day_count": null,
+  "source": "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD19A2_GRANULES",
+  "code_revision": null,
+  "processing_timestamp_utc": null,
+  "caveat": "Column AOD is not ground-level PM10 or validated mine-attributable dust"
+}

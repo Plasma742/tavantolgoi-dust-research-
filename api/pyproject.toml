@@ -1,0 +1,24 @@
+[project]
+name = "tavantolgoi-dust-api"
+version = "0.2.0"
+description = "FastAPI + Google Earth Engine backend for the Tavan Tolgoi Dust Research Platform (research prototype)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # allow unicode such as ≥, ², × in scientific text
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]  # FastAPI dependency-injection idiom
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S603", "S607"]
+"app/config.py" = ["S603", "S607"]  # fixed git command for code revision

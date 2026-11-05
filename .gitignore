@@ -33,3 +33,4 @@ data/roi/private/
 *.hdf
 
 .DS_Store
+api/.acceptance_evidence/
