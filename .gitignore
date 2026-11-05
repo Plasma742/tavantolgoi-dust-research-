@@ -1,0 +1,35 @@
+# --- secrets: never commit ---------------------------------------------------
+.env
+.env.*
+!.env.example
+*service-account*.json
+*credentials*.json
+application_default_credentials.json
+*.pem
+*.p12
+*.key
+.config/earthengine/
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# --- Node / web --------------------------------------------------------------
+node_modules/
+web/dist/
+*.tsbuildinfo
+
+# --- data: rasters, exports and restricted geometry stay out of git ----------
+data/raw/
+data/exports/
+data/roi/private/
+*.tif
+*.tiff
+*.nc
+*.hdf
+
+.DS_Store
